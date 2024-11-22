@@ -1,13 +1,48 @@
-import React from 'react';
+import { Component } from 'react';
 
-type Props = {
+interface ClockProps {
   name: string;
   today: Date;
-};
+}
 
-export class Clock extends React.Component<Props> {
+interface ClockState {
+  time: string;
+}
+
+export class Clock extends Component<ClockProps, ClockState> {
+  state = {
+    time: new Date().toUTCString().slice(-12, -4),
+  };
+
+  intervalId: number | undefined;
+
+  componentDidMount() {
+    this.intervalId = window.setInterval(() => {
+      const updatedTime = new Date().toUTCString().slice(-12, -4);
+
+      this.setState({ time: updatedTime });
+
+      // eslint-disable-next-line no-console
+      console.log(updatedTime);
+    }, 1000);
+  }
+
+  componentWillUnmount() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
+
+  componentDidUpdate(prevProps: ClockProps) {
+    if (prevProps.name !== this.props.name) {
+      // eslint-disable-next-line no-console
+      console.warn(`Renamed from ${prevProps.name} to ${this.props.name}`);
+    }
+  }
+
   render() {
-    const { name, today } = this.props;
+    const { name } = this.props;
+    const { time } = this.state;
 
     return (
       <div className="Clock">
@@ -15,9 +50,7 @@ export class Clock extends React.Component<Props> {
 
         {' time is '}
 
-        <span className="Clock__time">
-          {today.toUTCString().slice(-12, -4)}
-        </span>
+        <span className="Clock__time">{time}</span>
       </div>
     );
   }
